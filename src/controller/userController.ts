@@ -6,6 +6,7 @@ import generateToken from '../config/generatejwtToken';
 import bcrypt from 'bcryptjs';  // Needed for password comparison in login
 
 export const registerUser = async (req: Request, res: Response) => {
+
   try {
     const { email, password, username } = req.body;
 
@@ -15,11 +16,18 @@ export const registerUser = async (req: Request, res: Response) => {
       return res.status(400).json({ message: 'User already exists' });
     }
 
-    const user = await createUser(email, password, username);
+    // hash password
+    const hashedPassword = await bcrypt.hash(password, 10);
 
+    // create a new user with hashed password
+    const user = await createUser(email, hashedPassword, username);
+
+    //generate token
     const token = generateToken(user);
 
     res.status(201).json({ token, user });
+
+
   } catch (error) {
     console.error('Register error:', error);
     res.status(500).json({ message: 'Internal server error' });
