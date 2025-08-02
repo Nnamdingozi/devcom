@@ -1,7 +1,7 @@
 import express, { Application } from 'express';
 import dotenv from 'dotenv';
 import passport from 'passport';
-import userRoute from '../src/routes/userRoute'
+import userRoute from './routes/userRoute'
 import './config/passport'; // Ensure passport strategies are initialized
 import { PrismaClient } from '@prisma/client';
 import cors from 'cors';
