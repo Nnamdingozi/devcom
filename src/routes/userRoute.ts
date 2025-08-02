@@ -9,6 +9,6 @@ const userRoute: Router = express.Router();
 
 userRoute.post('/register', validateRegistration, userController.registerUser);
 userRoute.post('/login', validateLogin, userController.userLogin as RequestHandler);
-userRoute.get('/profile', passport.authenticate('jwt', { session: false }), userController.getUser as RequestHandler);
+userRoute.get('/profile/:email', passport.authenticate('jwt', { session: false }), userController.getUser as RequestHandler);
 
 export default userRoute;

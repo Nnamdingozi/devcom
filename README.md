@@ -97,6 +97,23 @@ DATABASE_URL=postgresql://devuser:devpassword@localhost:5432/devcom
 
 ---
 
+✉️ Email Verification Setup (Nodemailer)
+Install Nodemailer:
+
+bash
+Copy
+Edit
+npm install nodemailer dotenv
+Generate App Password:
+
+Gmail: Google App Passwords
+
+Yahoo: Yahoo App Passwords
+
+Use the app password in EMAIL_PASS (remove spaces).
+
+send
+
 ## 🚀 Start the Development Server
 
 ```bash

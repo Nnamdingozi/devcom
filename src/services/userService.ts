@@ -79,3 +79,31 @@ export async function deleteUser(id: number) {
     throw error;
   }
 }
+
+
+export const updateUserVerificationToken = async (userId: number, token: string, expiresAt: Date) => {
+  return await UserModel.update({
+    where: { id: userId },
+    data: {
+      verificationToken: token,
+      tokenExpiresAt: expiresAt,
+    },
+  });
+};
+
+
+export const verifyUserByToken = async (userId: number, token: string) => {
+  const user = await UserModel.findUnique({ where: { id: userId } });
+  if (!user || user.verificationToken !== token || new Date() > user.tokenExpiresAt!) {
+    return null;
+  }
+
+  return await UserModel.update({
+    where: { id: userId },
+    data: {
+      verified: true,
+      verificationToken: null,
+      tokenExpiresAt: null,
+    },
+  });
+};

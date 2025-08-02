@@ -5,6 +5,7 @@ import userRoute from '../src/routes/userRoute'
 import './config/passport'; // Ensure passport strategies are initialized
 import { PrismaClient } from '@prisma/client';
 import cors from 'cors';
+import { setupSwaggerDocs } from './config/swagger';
 
 dotenv.config();
 
@@ -24,10 +25,17 @@ app.use(passport.initialize());
 // Routes
 app.use('/api/users', userRoute);  // Prefix user routes
 
+
+if (process.env.ENABLE_SWAGGER === 'true') {
+  setupSwaggerDocs(app);
+}
+
 // Root route
 app.get('/', (req, res) => {
   res.send('API is running...');
 });
+
+
 
 // Start server
 app.listen(PORT, () => {

@@ -8,13 +8,14 @@ datasource db {
 }
 
 
-
-
 model User {
-  id        Int      @id @default(autoincrement())
-  email     String   @unique
-  password  String
-  username      String?
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
+  id                Int      @id @default(autoincrement())
+  email             String   @unique
+  password          String
+  username          String?
+  verified          Boolean  @default(false)
+  verificationToken String?  // Nullable
+  tokenExpiresAt    DateTime? // Nullable
+  createdAt         DateTime @default(now())
+  updatedAt         DateTime @updatedAt
 }
