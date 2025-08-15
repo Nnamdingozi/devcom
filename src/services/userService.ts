@@ -1,18 +1,3 @@
-// import { UserModel } from '../models/usermodel';
-
-// export const createUser = async (email: string, password: string, username?: string) => {
-//   return await UserModel.create({ data: { email, password, username } });
-// };
-
-// export const findUserByEmail = async (email: string) => {
-//   return await UserModel.findUnique({ where: { email } });
-// };
-
-
-
-
-// // Add updateUser, deleteUser similarly
-
 
 
 import { UserModel } from '../models/usermodel';
