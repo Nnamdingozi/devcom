@@ -27,6 +27,9 @@ userRoute.post('/register', validateRegistration, userController.registerUser);
 userRoute.post('/verify', userController.verifyEmail);
 
 
+// ===== Resend Email verification route =====
+userRoute.post('/resend-email', userController.resendVerificationEmail);
+
 userRoute.post('/login', validateLogin, userController.userLogin as RequestHandler);
 
 // ===== Protected Routes =====

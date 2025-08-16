@@ -77,12 +77,13 @@ export const updateUserVerificationToken = async (userId: number, token: string,
 };
 
 
-export const verifyUserByToken = async (userId: number, token: string) => {
+export const verifyUserByToken = async (userId: number, verificationToken: string) => {
   const user = await UserModel.findUnique({ where: { id: userId } });
-  if (!user || user.verificationToken !== token || new Date() > user.tokenExpiresAt!) {
+  const expiryTime = user?.tokenExpiresAt;
+  
+  if (!user || user.verificationToken !== String(verificationToken) || (expiryTime && new Date() > expiryTime)) {
     return null;
   }
-
   return await UserModel.update({
     where: { id: userId },
     data: {

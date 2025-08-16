@@ -166,6 +166,7 @@ import bcrypt from 'bcryptjs';
 import generateToken from '../config/generatejwtToken';
 
 // ===== Register User =====
+
 export const registerUser = async (req: Request, res: Response) => {
   try {
     const { email, password, username } = req.body;
@@ -179,10 +180,13 @@ export const registerUser = async (req: Request, res: Response) => {
 
     const user = await createUser(email, hashedPassword, username);
 
-    // Generate 4-digit token
-    const verificationToken = Math.floor(1000 + Math.random() * 9000).toString();
-    const tokenExpiresAt = new Date(Date.now() + 15 * 60 * 1000); // 15 minutes expiry
+    
+ // Generate 4-digit token
+ const verificationToken = Math.floor(1000 + Math.random() * 9000).toString();
+ const tokenExpiresAt = new Date(Date.now() + 15 * 60 * 1000); // 15 minutes expiry
 
+
+   
     await updateUserVerificationToken(user.id, verificationToken, tokenExpiresAt);
 
     console.log(`Verification token for ${email}: ${verificationToken}`);
@@ -193,7 +197,8 @@ export const registerUser = async (req: Request, res: Response) => {
       text: `Your verification code is ${verificationToken}`,
     });
 
-    res.status(201).json({ message: 'Signup successful. Please verify your email.', userId: user.id });
+    res.status(201).json({ message: 'Signup successful. Please verify your email.', userId: user.id, devToken: verificationToken});
+    
   } catch (error) {
     console.error('Register error:', error);
     res.status(500).json({ message: 'Internal server error' });
@@ -203,9 +208,9 @@ export const registerUser = async (req: Request, res: Response) => {
 // ===== Verify Email =====
 export const verifyEmail = async (req: Request, res: Response) => {
   try {
-    const { userId, token } = req.body;
+    const { userId, verificationToken} = req.body;
 
-    const user = await verifyUserByToken(Number(userId), token);
+    const user = await verifyUserByToken(Number(userId), verificationToken );
     if (!user) {
       return res.status(400).json({ message: 'Invalid or expired token' });
     }
@@ -217,6 +222,43 @@ export const verifyEmail = async (req: Request, res: Response) => {
     res.status(500).json({ message: 'Internal server error' });
   }
 };
+
+// ===== Resend Verification Token =====
+export const resendVerificationEmail = async (req: Request, res: Response) => {
+  try {
+    const { email } = req.body;
+
+    const user = await findUserByEmail(email);
+    if (!user) {
+      return res.status(404).json({ message: 'User not found' });
+    }
+
+    if (user.verified) {
+      return res.status(400).json({ message: 'User is already verified. Please login.' });
+    }
+
+    // Generate new token
+    const verificationToken = Math.floor(1000 + Math.random() * 9000).toString();
+    const tokenExpiresAt = new Date(Date.now() + 15 * 60 * 1000);
+
+    await updateUserVerificationToken(user.id, verificationToken, tokenExpiresAt);
+
+        // ✅ Log token in backend (only for debugging, remove in production)
+        console.log(`Verification token for user ${user.id} ${email}: ${verificationToken}`);
+
+    // Send email
+    await sendEmail({
+      to: email,
+      text: `Your new verification code is ${verificationToken}`,
+    });
+
+    res.status(200).json({ message: 'New verification code sent to your email.' });
+  } catch (error) {
+    console.error('Resend verification error:', error);
+    res.status(500).json({ message: 'Internal server error' });
+  }
+};
+
 
 // ===== User Login =====
 export const userLogin = async (req: Request, res: Response) => {
