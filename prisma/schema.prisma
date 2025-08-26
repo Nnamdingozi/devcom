@@ -4,18 +4,30 @@ generator client {
 
 datasource db {
   provider = "postgresql"
-  url      = env("DATABASE_URL")  // Make sure this exists in .env
+  url      = env("DATABASE_URL") // Make sure this exists in .env
 }
 
-
 model User {
-  id                Int      @id @default(autoincrement())
-  email             String   @unique
+  id                Int       @id @default(autoincrement())
+  email             String    @unique
   password          String
   username          String?
-  verified          Boolean  @default(false)
-  verificationToken String?  // Nullable
+  verified          Boolean   @default(false)
+  verificationToken String? // Nullable
   tokenExpiresAt    DateTime? // Nullable
-  createdAt         DateTime @default(now())
-  updatedAt         DateTime @updatedAt
+  createdAt         DateTime  @default(now())
+  updatedAt         DateTime  @updatedAt
+
+  blogs Blog[] // A user can have many blogs
+}
+
+model Blog {
+  id        Int      @id @default(autoincrement())
+  title     String
+  content   String
+  userId    Int
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  User User @relation(fields: [userId], references: [id])
 }

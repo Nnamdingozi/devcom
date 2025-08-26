@@ -6,6 +6,7 @@ import './config/passport'; // Ensure passport strategies are initialized
 import { PrismaClient } from '@prisma/client';
 import cors from 'cors';
 import { setupSwaggerDocs } from './config/swagger';
+import blogRoute from './routes/blogRoutes';
 
 dotenv.config();
 
@@ -14,7 +15,7 @@ const prisma = new PrismaClient();
 const PORT = process.env.PORT || 5000;
 
 // Middleware
-app.use(cors());  // Enable CORS if frontend is on different domain
+app.use(cors({origin: 'http://localhost:5173', credentials: true})); 
 app.use(express.json());  // Parse JSON requests
 app.use(express.urlencoded({ extended: true }));
 
@@ -24,7 +25,7 @@ app.use(passport.initialize());
 
 // Routes
 app.use('/api/users', userRoute);  // Prefix user routes
-
+app.use("/api/blogs", blogRoute);
 
 if (process.env.ENABLE_SWAGGER === 'true') {
   setupSwaggerDocs(app);

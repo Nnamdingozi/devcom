@@ -1,6 +1,7 @@
 
 
 import { UserModel } from '../models/usermodel';
+
 export async function createUser(email: string, password: string, username?: string) {
   try {
     const newUser = await UserModel.create({
@@ -80,7 +81,7 @@ export const updateUserVerificationToken = async (userId: number, token: string,
 export const verifyUserByToken = async (userId: number, verificationToken: string) => {
   const user = await UserModel.findUnique({ where: { id: userId } });
   const expiryTime = user?.tokenExpiresAt;
-  
+
   if (!user || user.verificationToken !== String(verificationToken) || (expiryTime && new Date() > expiryTime)) {
     return null;
   }

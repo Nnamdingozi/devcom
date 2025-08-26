@@ -1,42 +1,9 @@
-// // src/swagger.ts
-// import swaggerUi from 'swagger-ui-express';
-// import swaggerJsdoc from 'swagger-jsdoc';
-// import { Express } from 'express';
-// import { userDocs } from '../docs/userDocs'; // ✅ import here
-// import { Application } from 'express';
-
-// const swaggerSpec = {
-//   openapi: '3.0.0',
-//   info: {
-//     title: 'DevCom API',
-//     version: '1.0.0',
-//   },
-//   paths: {
-//     ...userDocs,  // ✅ Merge all docs here
-//   },
-//   components: {
-//     securitySchemes: {
-//       bearerAuth: {
-//         type: 'http',
-//         scheme: 'bearer',
-//         bearerFormat: 'JWT',
-//       },
-//     },
-//   },
-//   security: [{ bearerAuth: [] }],
-// };
-
-// export const setupSwaggerDocs = (app: Application) => {
-//   app.use('/api-docs', swaggerUi.serve, swaggerUi.setup(swaggerSpec));
-// };
-
-
-
 
 // src/swagger.ts
 import swaggerUi from 'swagger-ui-express';
 import { Express, Application } from 'express';
-import { userDocs } from '../docs/userDocs'; // ✅ Import route docs
+import { userDocs } from '../docs/userDocs'; 
+import { blogDocs } from '../docs/blogDocs';
 import dotenv from 'dotenv';
 
 dotenv.config();  // Load environment variables
@@ -55,7 +22,8 @@ const swaggerSpec = {
     },
   ],
   paths: {
-    ...userDocs,  // ✅ All route docs go here
+    ...userDocs,
+    ...blogDocs  // ✅ All route docs go here
   },
   components: {
     securitySchemes: {
