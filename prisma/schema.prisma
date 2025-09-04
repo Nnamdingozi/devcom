@@ -4,17 +4,17 @@ generator client {
 
 datasource db {
   provider = "cockroachdb"
-  url      = env("DATABASE_URL") // Make sure this exists in .env
+  url      = env("DATABASE_URL")
 }
 
 model User {
-  id                Int       @id @default(autoincrement())
+  id                BigInt    @id @default(autoincrement())
   email             String    @unique
   password          String
   username          String?
   verified          Boolean   @default(false)
-  verificationToken String? // Nullable
-  tokenExpiresAt    DateTime? // Nullable
+  verificationToken String?
+  tokenExpiresAt    DateTime?
   createdAt         DateTime  @default(now())
   updatedAt         DateTime  @updatedAt
 
@@ -22,10 +22,10 @@ model User {
 }
 
 model Blog {
-  id        Int      @id @default(autoincrement())
+  id        BigInt   @id @default(autoincrement())
   title     String
   content   String
-  userId    Int
+  userId    BigInt
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 
