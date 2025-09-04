@@ -3,7 +3,7 @@ generator client {
 }
 
 datasource db {
-  provider = env("DB_PROVIDER")
+  provider = "cockroachdb"
   url      = env("DATABASE_URL") // Make sure this exists in .env
 }
 
