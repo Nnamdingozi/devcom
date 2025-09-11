@@ -7,7 +7,7 @@ export async function createUser(email: string, password: string, username?: str
     const newUser = await UserModel.create({
       data: { email, password, username },
     });
-    console.log('User created:', newUser);
+    // console.log('User created:', newUser);
     return newUser;
   } catch (error) {
     console.error('Error creating user:', error);
@@ -78,15 +78,20 @@ export const updateUserVerificationToken = async (userId: number, token: string,
 };
 
 
-export const verifyUserByToken = async (userId: number, verificationToken: string) => {
-  const user = await UserModel.findUnique({ where: { id: userId } });
-  const expiryTime = user?.tokenExpiresAt;
 
-  if (!user || user.verificationToken !== String(verificationToken) || (expiryTime && new Date() > expiryTime)) {
-    return null;
+export const verifyUserByToken = async (verificationToken: string) => {
+  const user = await UserModel.findFirst({
+    where: { verificationToken },
+  });
+
+  if (!user) return null;
+
+  if (user.tokenExpiresAt && new Date() > user.tokenExpiresAt) {
+    return null; // expired
   }
+
   return await UserModel.update({
-    where: { id: userId },
+    where: { id: user.id },
     data: {
       verified: true,
       verificationToken: null,

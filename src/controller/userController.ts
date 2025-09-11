@@ -153,6 +153,8 @@
 
 
 import { Request, Response } from 'express';
+import crypto from "crypto";
+
 import { 
   createUser, 
   findUserByEmail, 
@@ -164,6 +166,15 @@ import {
 import { sendEmail } from '../config/sendEmail';
 import bcrypt from 'bcryptjs';
 import generateToken from '../config/generatejwtToken';
+
+
+
+
+export function generateEmailVerificationCode(): string {
+  // crypto.randomInt is cryptographically secure and avoids bias
+  return crypto.randomInt(100000, 1000000).toString(); // always 6 digits
+}
+
 
 // ===== Register User =====
 
@@ -180,16 +191,20 @@ export const registerUser = async (req: Request, res: Response) => {
 
     const user = await createUser(email, hashedPassword, username);
 
-    
- // Generate 4-digit token
- const verificationToken = Math.floor(1000 + Math.random() * 9000).toString();
+
+
+ /**
+  * Generate a secure 6-digit numeric token for email verification
+  */
+ 
  const tokenExpiresAt = new Date(Date.now() + 15 * 60 * 1000); // 15 minutes expiry
+const verificationToken = generateEmailVerificationCode()
 
 
    
     await updateUserVerificationToken(user.id, verificationToken, tokenExpiresAt);
 
-    console.log(`Verification token for ${email}: ${verificationToken}`);
+    // console.log(`Verification token for ${email}: ${verificationToken}`);
 
     // Send email
     await sendEmail({
@@ -197,7 +212,7 @@ export const registerUser = async (req: Request, res: Response) => {
       text: `Your verification code is ${verificationToken}`,
     });
 
-    res.status(201).json({ message: 'Signup successful. Please verify your email.', userId: user.id, devToken: verificationToken});
+    res.status(201).json({ message: 'Signup successful. Please verify your email.'});
     
   } catch (error) {
     console.error('Register error:', error);
@@ -205,23 +220,30 @@ export const registerUser = async (req: Request, res: Response) => {
   }
 };
 
+
+
 // ===== Verify Email =====
 export const verifyEmail = async (req: Request, res: Response) => {
   try {
-    const { userId, verificationToken} = req.body;
+    const {verificationToken} = req.body;
 
-    const user = await verifyUserByToken(Number(userId), verificationToken );
+    const user = await verifyUserByToken(verificationToken );
     if (!user) {
       return res.status(400).json({ message: 'Invalid or expired token' });
     }
 
     const jwtToken = generateToken(user);
-    res.json({ message: 'Email verified successfully', token: jwtToken, user });
+    res.json({ message: 'Email verified successfully' , toke: jwtToken });
   } catch (error) {
     console.error('Verify error:', error);
-    res.status(500).json({ message: 'Internal server error' });
+    res.status(500).json({ message: 'Internal server error'});
   }
 };
+
+
+
+
+
 
 // ===== Resend Verification Token =====
 export const resendVerificationEmail = async (req: Request, res: Response) => {
@@ -244,7 +266,8 @@ export const resendVerificationEmail = async (req: Request, res: Response) => {
     await updateUserVerificationToken(user.id, verificationToken, tokenExpiresAt);
 
         // ✅ Log token in backend (only for debugging, remove in production)
-        console.log(`Verification token for user ${user.id} ${email}: ${verificationToken}`);
+        // console.log(`Verification token for user ${user.id} ${email}: ${verificationToken}`);
+
 
     // Send email
     await sendEmail({
@@ -281,16 +304,16 @@ export const userLogin = async (req: Request, res: Response) => {
 
     const token = generateToken(user);
 
-    // Remove sensitive data before returning user
-    const safeUser = {
-      id: user.id,
-      email: user.email,
-      username: user.username,
-      verified: user.verified,
-      createdAt: user.createdAt,
-    };
+    // // Remove sensitive data before returning user
+    // const safeUser = {
+    //   id: user.id,
+    //   email: user.email,
+    //   username: user.username,
+    //   verified: user.verified,
+    //   createdAt: user.createdAt,
+    // };
 
-    res.status(200).json({ token, user: safeUser });
+    res.status(200).json({ token });
   } catch (error) {
     console.error('Login error:', error);
     res.status(500).json({ message: 'Internal server error' });
